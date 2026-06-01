@@ -83,11 +83,13 @@ const NisnCard = ({ student }) => {
           </div>
           
           {/* Top Header - Extreme Right */}
-          <div className="absolute top-2.5 right-3 flex items-center z-10">
-            <div className="text-right flex flex-col justify-end mt-1">
-              <h1 className="text-[26px] font-black text-[#2e598b] tracking-wider leading-none font-sans whitespace-nowrap">KARTU NISN</h1>
-              <h2 className="text-[9px] font-bold text-[#2e598b] tracking-widest mt-0.5 font-sans whitespace-nowrap">NOMOR INDUK SISWA NASIONAL</h2>
-            </div>
+          <div className="absolute top-3 right-3 flex items-center z-10">
+            <h1 className="text-[26px] font-black text-[#2e598b] tracking-wider leading-none font-sans whitespace-nowrap">KARTU NISN</h1>
+          </div>
+
+          {/* Subtitle placed on the line */}
+          <div className="absolute top-[42px] right-3 z-10">
+            <h2 className="text-[9.5px] font-bold text-[#2e598b] tracking-widest font-sans whitespace-nowrap">NOMOR INDUK SISWA NASIONAL</h2>
           </div>
 
           {/* Main Content */}
