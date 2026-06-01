@@ -26,7 +26,11 @@ const Login = () => {
         navigate('/setup-password');
       } else {
         localStorage.setItem('token', response.data.token);
-        navigate('/dashboard');
+        if (response.data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Terjadi kesalahan saat login.');

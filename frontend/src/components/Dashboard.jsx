@@ -45,7 +45,7 @@ const Dashboard = () => {
   };
 
   const handleUpdate = (updatedData) => {
-    setStudentData((prev) => ({ ...prev, ...updatedData, is_verified: false }));
+    setStudentData((prev) => ({ ...prev, ...updatedData, is_verified: false, verification_status: 'pending', rejection_reason: null }));
   };
 
   if (loading) {
@@ -88,10 +88,20 @@ const Dashboard = () => {
           </div>
         )}
         
-        {studentData && !studentData.is_verified && studentData.nama_lengkap && (
+        {studentData && studentData.verification_status === 'pending' && studentData.nama_lengkap && (
            <div className="mb-8 p-4 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 flex items-start sm:items-center gap-3 shadow-sm">
              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
              <p className="text-sm font-medium">Data Anda sedang dalam proses verifikasi oleh admin. Perubahan yang Anda lakukan sudah tersimpan.</p>
+           </div>
+        )}
+
+        {studentData && studentData.verification_status === 'rejected' && studentData.nama_lengkap && (
+           <div className="mb-8 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-start flex-col sm:flex-row sm:items-center gap-3 shadow-sm">
+             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 sm:mt-0" />
+             <div>
+               <p className="text-sm font-bold mb-1">Pengajuan Perubahan Data Ditolak</p>
+               <p className="text-sm font-medium">{studentData.rejection_reason}</p>
+             </div>
            </div>
         )}
 

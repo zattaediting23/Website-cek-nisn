@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import SetupPassword from './components/SetupPassword';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/setup-password" element={<SetupPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
