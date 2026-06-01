@@ -59,7 +59,20 @@ const ProfileForm = ({ student, onUpdate }) => {
       setMessage({ type: 'success', text: 'Profil berhasil diperbarui. Menunggu verifikasi admin.' });
       onUpdate(formData);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Gagal memperbarui profil.' });
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      } else {
+        let errText = 'Gagal menyimpan data.';
+        if (err.response?.data?.error) {
+          if (typeof err.response.data.error === 'string') {
+            errText = err.response.data.error;
+          } else if (err.response.data.error.message) {
+            errText = err.response.data.error.message;
+          }
+        }
+        setMessage({ type: 'error', text: errText });
+      }
     } finally {
       setLoading(false);
     }

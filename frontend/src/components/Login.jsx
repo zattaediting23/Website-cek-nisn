@@ -33,7 +33,15 @@ const Login = () => {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Terjadi kesalahan saat login.');
+      let errorMessage = 'Terjadi kesalahan saat login.';
+      if (err.response?.data?.error) {
+        if (typeof err.response.data.error === 'string') {
+          errorMessage = err.response.data.error;
+        } else if (err.response.data.error.message) {
+          errorMessage = err.response.data.error.message;
+        }
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
