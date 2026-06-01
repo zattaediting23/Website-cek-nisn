@@ -9,7 +9,8 @@ const ProfileForm = ({ student, onUpdate }) => {
     tanggal_lahir: student.tanggal_lahir ? student.tanggal_lahir.split('T')[0] : '',
     jenis_kelamin: student.jenis_kelamin || '',
     nama_ibu_kandung: student.nama_ibu_kandung || '',
-    foto_profil: student.foto_profil || ''
+    foto_profil: student.foto_profil || '',
+    foto_profil_gm: student.foto_profil_gm || ''
   });
   
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const ProfileForm = ({ student, onUpdate }) => {
     });
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, fieldName) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 1048576) { // 1MB limit
@@ -36,7 +37,7 @@ const ProfileForm = ({ student, onUpdate }) => {
       reader.onloadend = () => {
         const base64String = reader.result;
         setFormData(prev => {
-          const updated = { ...prev, foto_profil: base64String };
+          const updated = { ...prev, [fieldName]: base64String };
           onUpdate(updated);
           return updated;
         });
@@ -150,18 +151,34 @@ const ProfileForm = ({ student, onUpdate }) => {
           />
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-medium text-slate-700">Foto Profil (Maks 1MB)</label>
+        <div className="space-y-2 md:col-span-1">
+          <label className="text-sm font-medium text-slate-700">Foto Kartu NISN (Maks 1MB)</label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition-colors">
             <div className="space-y-1 text-center">
               <UploadCloud className="mx-auto h-12 w-12 text-slate-400" />
               <div className="flex text-sm text-slate-600 justify-center">
                 <label className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 px-1">
                   <span>Unggah File</span>
-                  <input type="file" name="foto_profil" className="sr-only" accept="image/*" onChange={handleImageChange} />
+                  <input type="file" className="sr-only" accept="image/*" onChange={(e) => handleImageChange(e, 'foto_profil')} />
                 </label>
               </div>
-              <p className="text-xs text-slate-500">PNG, JPG, GIF up to 1MB</p>
+              <p className="text-[10px] text-slate-500">PNG, JPG, GIF up to 1MB</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2 md:col-span-1">
+          <label className="text-sm font-medium text-slate-700">Foto Kartu Pelajar (Maks 1MB)</label>
+          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition-colors">
+            <div className="space-y-1 text-center">
+              <UploadCloud className="mx-auto h-12 w-12 text-slate-400" />
+              <div className="flex text-sm text-slate-600 justify-center">
+                <label className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 px-1">
+                  <span>Unggah File</span>
+                  <input type="file" className="sr-only" accept="image/*" onChange={(e) => handleImageChange(e, 'foto_profil_gm')} />
+                </label>
+              </div>
+              <p className="text-[10px] text-slate-500">PNG, JPG, GIF up to 1MB</p>
             </div>
           </div>
         </div>

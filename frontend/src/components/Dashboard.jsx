@@ -4,6 +4,7 @@ import axios from 'axios';
 import { LogOut, Loader2, LayoutDashboard, AlertCircle } from 'lucide-react';
 import ProfileForm from './ProfileForm';
 import NisnCard from './NisnCard';
+import GlobalMandiriCard from './GlobalMandiriCard';
 
 const Dashboard = () => {
   const [studentData, setStudentData] = useState(null);
@@ -131,8 +132,15 @@ const Dashboard = () => {
                   <span className="w-2 h-6 bg-indigo-500 rounded-full"></span>
                   Pratinjau Kartu
                 </h3>
-                <div className="w-full overflow-hidden">
+                <div className="w-full overflow-hidden flex flex-col gap-10">
                   {studentData && <NisnCard student={studentData} />}
+                  
+                  {studentData && (
+                    <>
+                      <div className="border-t border-slate-200 w-full"></div>
+                      <GlobalMandiriCard student={studentData} />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
