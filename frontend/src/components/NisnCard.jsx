@@ -88,7 +88,7 @@ const NisnCard = ({ student }) => {
           </div>
 
           {/* Subtitle placed on the line */}
-          <div className="absolute top-[42px] right-3 z-10">
+          <div className="absolute top-[47px] right-3 z-10">
             <h2 className="text-[9.5px] font-bold text-[#2e598b] tracking-widest font-sans whitespace-nowrap">NOMOR INDUK SISWA NASIONAL</h2>
           </div>
 
