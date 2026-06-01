@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ShieldCheck, CheckCircle, XCircle, LogOut, Search, Clock } from 'lucide-react';
+import { ShieldCheck, CheckCircle, XCircle, LogOut, Search, Clock, ArrowLeft } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
@@ -101,9 +101,16 @@ const AdminDashboard = () => {
               <div className="p-2 bg-indigo-50 rounded-lg">
                 <ShieldCheck className="w-6 h-6 text-indigo-600" />
               </div>
-              <h1 className="text-xl font-bold text-slate-800">Admin Dashboard</h1>
+              <h1 className="text-xl font-bold text-slate-800">Portal Admin</h1>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200 border border-indigo-200 shadow-sm"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:block">Kembali ke Dashboard</span>
+              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-medium px-3 py-2 rounded-lg transition-colors"
@@ -163,17 +170,28 @@ const AdminDashboard = () => {
                   {students.map((student) => (
                     <tr key={student.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 relative">
-                            {student.foto_profil ? (
-                              <img className="h-10 w-10 rounded-full object-cover border border-slate-200" src={student.foto_profil} alt="" />
-                            ) : (
-                              <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center border border-indigo-200">
-                                <span className="text-indigo-600 font-bold">{student.nama_lengkap?.charAt(0) || '?'}</span>
-                              </div>
-                            )}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            <div className="flex-shrink-0 h-10 w-10 relative" title="Foto NISN">
+                              {student.foto_profil ? (
+                                <img className="h-10 w-10 rounded-full object-cover border border-slate-200" src={student.foto_profil} alt="NISN" />
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center border border-indigo-200">
+                                  <span className="text-indigo-600 font-bold text-[9px]">NISN</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-shrink-0 h-10 w-10 relative" title="Foto Pelajar">
+                              {student.foto_profil_gm ? (
+                                <img className="h-10 w-10 rounded-full object-cover border border-slate-200" src={student.foto_profil_gm} alt="GM" />
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center border border-amber-200">
+                                  <span className="text-amber-600 font-bold text-[9px]">Pelajar</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="ml-4">
+                          <div className="ml-1">
                             <div className="text-sm font-medium text-slate-900">{student.nama_lengkap}</div>
                             <div className="text-sm text-slate-500">{student.jenis_kelamin}</div>
                           </div>

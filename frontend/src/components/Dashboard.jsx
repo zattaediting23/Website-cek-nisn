@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LogOut, Loader2, LayoutDashboard, AlertCircle } from 'lucide-react';
+import { LogOut, Loader2, LayoutDashboard, AlertCircle, ShieldCheck } from 'lucide-react';
 import ProfileForm from './ProfileForm';
 import NisnCard from './NisnCard';
 import GlobalMandiriCard from './GlobalMandiriCard';
@@ -67,15 +67,26 @@ const Dashboard = () => {
               <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                 <LayoutDashboard className="w-6 h-6" />
               </div>
-              <span className="text-xl font-bold text-slate-800 tracking-tight">Portal Siswa</span>
+              <span className="text-xl font-bold text-slate-800 tracking-tight">{studentData?.nisn === 'admin' ? 'Portal Admin' : 'Portal Siswa'}</span>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-            >
-              <LogOut className="w-4 h-4" />
-              Keluar
-            </button>
+            <div className="flex items-center gap-2">
+              {studentData?.nisn === 'admin' && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200 border border-indigo-200 shadow-sm"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span className="hidden sm:block">Kelola User Request</span>
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 border border-transparent"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:block">Keluar</span>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
