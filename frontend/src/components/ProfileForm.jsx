@@ -52,7 +52,7 @@ const ProfileForm = ({ student, onUpdate }) => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/student/update`, formData, {
+      await axios.put('/api/student/update', formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

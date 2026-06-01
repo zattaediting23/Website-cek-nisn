@@ -22,6 +22,12 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
+// Auto-migrate: Ensure column exists (safe to run multiple times)
+pool.query(`
+  ALTER TABLE students 
+  ADD COLUMN IF NOT EXISTS is_first_login BOOLEAN DEFAULT true;
+`).catch(err => console.error("Auto-migration error (can be ignored):", err.message));
+
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -114,6 +120,49 @@ app.post('/api/auth/change-password', async (req, res) => {
   } catch (err) {
     console.error('Change password error:', err);
     res.status(403).json({ error: 'Token kadaluarsa atau tidak valid' });
+  }
+});
+
+// 1c. Reset Password (Forgot Password)
+app.post('/api/auth/reset-password', async (req, res) => {
+  const nisn = req.body.nisn?.trim();
+  const tanggal_lahir = req.body.tanggal_lahir?.trim();
+  console.log('--- RESET PASSWORD ATTEMPT ---');
+  console.log('Body:', req.body);
+  console.log('NISN:', nisn, 'Tanggal Lahir:', tanggal_lahir);
+
+  try {
+    const result = await pool.query('SELECT * FROM students WHERE nisn = $1 AND tanggal_lahir::text LIKE $2 || \'%\'', [nisn, tanggal_lahir]);
+    console.log('Query result rows:', result.rows.length);
+    
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Data NISN atau Tanggal Lahir tidak cocok' });
+    }
+
+    const student = result.rows[0];
+    
+    // Format tanggal_lahir from YYYY-MM-DD to DDMMYYYY
+    const d = new Date(tanggal_lahir);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = String(d.getFullYear());
+    const defaultPassword = `${day}${month}${year}`;
+
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    await pool.query(
+      'UPDATE students SET password = $1, is_first_login = true WHERE id = $2',
+      [hashedPassword, student.id]
+    );
+
+    // Return the new password so the frontend can display it
+    res.json({ 
+      message: 'Password berhasil direset! Silakan login kembali dengan password baru ini.',
+      newPassword: defaultPassword
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 });
 

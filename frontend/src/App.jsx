@@ -3,12 +3,15 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import SetupPassword from './components/SetupPassword';
 
+import ForgotPassword from './components/ForgotPassword';
+
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-slate-50 font-sans">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/setup-password" element={<SetupPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<Navigate to="/login" replace />} />

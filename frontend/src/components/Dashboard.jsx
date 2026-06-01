@@ -20,7 +20,7 @@ const Dashboard = () => {
       }
 
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/student/profile`, {
+        const response = await axios.get('/api/student/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStudentData(response.data);
@@ -121,7 +121,7 @@ const Dashboard = () => {
                   <span className="w-2 h-6 bg-indigo-500 rounded-full"></span>
                   Pratinjau Kartu
                 </h3>
-                <div className="flex justify-center">
+                <div className="w-full overflow-hidden">
                   {studentData && <NisnCard student={studentData} />}
                 </div>
               </div>
