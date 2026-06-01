@@ -3,6 +3,8 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import SetupPassword from './components/SetupPassword';
 import AdminDashboard from './components/AdminDashboard';
+import ForgotPassword from './components/ForgotPassword';
+import NotFound from './components/NotFound';
 
 function App() {
   return (
@@ -13,7 +15,9 @@ function App() {
           <Route path="/setup-password" element={<SetupPassword />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </Router>
