@@ -10,9 +10,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: false
+}));
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
+  origin: true,
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Allow larger payload for base64 image
