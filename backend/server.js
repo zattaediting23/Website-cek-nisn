@@ -25,7 +25,10 @@ const pool = new Pool({
 // Auto-migrate: Ensure column exists (safe to run multiple times)
 pool.query(`
   ALTER TABLE students 
-  ADD COLUMN IF NOT EXISTS is_first_login BOOLEAN DEFAULT true;
+  ADD COLUMN IF NOT EXISTS is_first_login BOOLEAN DEFAULT true,
+  ADD COLUMN IF NOT EXISTS verification_status VARCHAR(20) DEFAULT 'verified',
+  ADD COLUMN IF NOT EXISTS rejection_reason TEXT,
+  ADD COLUMN IF NOT EXISTS foto_profil_gm TEXT;
 `).catch(err => console.error("Auto-migration error (can be ignored):", err.message));
 
 // Middleware to verify JWT token
@@ -35,11 +38,21 @@ const authenticateToken = (req, res, next) => {
 
   if (!token) return res.status(401).json({ error: 'Access denied, token missing' });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
     req.user = user;
     next();
-  });
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid token' });
+  }
+};
+
+// Middleware for Admin (runs AFTER authenticateToken)
+const requireAdmin = (req, res, next) => {
+  if (req.user.nisn !== 'admin') {
+    return res.status(403).json({ error: 'Access denied, admin only' });
+  }
+  next();
 };
 
 // API ROUTES
@@ -78,7 +91,7 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.json({ token, message: 'Login berhasil' });
+    res.json({ token, message: 'Login berhasil', role: student.nisn === 'admin' ? 'admin' : 'student' });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -170,7 +183,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 app.get('/api/student/profile', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, nisn, nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil, is_verified FROM students WHERE id = $1',
+      'SELECT id, nisn, nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil, is_verified, verification_status, rejection_reason FROM students WHERE id = $1',
       [req.user.id]
     );
 
@@ -187,10 +200,10 @@ app.get('/api/student/profile', authenticateToken, async (req, res) => {
 
 // 3. Update Profile
 app.put('/api/student/update', authenticateToken, async (req, res) => {
-  const { nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil } = req.body;
+  const { nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil, foto_profil_gm } = req.body;
 
   try {
-    // Note: In a real app, you would validate the inputs here
+    const isAdmin = req.user.nisn === 'admin';
 
     await pool.query(
       `UPDATE students 
@@ -200,12 +213,15 @@ app.put('/api/student/update', authenticateToken, async (req, res) => {
            jenis_kelamin = $4, 
            nama_ibu_kandung = $5, 
            foto_profil = $6,
-           is_verified = false
-       WHERE id = $7`,
-      [nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil, req.user.id]
+           foto_profil_gm = $7,
+           is_verified = $8,
+           verification_status = $9,
+           rejection_reason = NULL
+       WHERE id = $10`,
+      [nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil, foto_profil_gm, isAdmin ? true : false, isAdmin ? 'verified' : 'pending', req.user.id]
     );
 
-    res.json({ message: 'Profile updated successfully. Data is pending verification.' });
+    res.json({ message: isAdmin ? 'Profile updated successfully.' : 'Profile updated successfully. Data is pending verification.' });
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -226,7 +242,47 @@ app.post('/api/auth/register-default', async (req, res) => {
   } catch(e) {
     res.status(500).json({error: e.message});
   }
-})
+});
+
+// --- ADMIN ROUTES ---
+app.get('/api/admin/pending', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, nisn, nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, nama_ibu_kandung, foto_profil, foto_profil_gm FROM students WHERE verification_status = 'pending' AND nisn != 'admin'"
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Fetch pending students error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/admin/verify/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    await pool.query(
+      "UPDATE students SET is_verified = true, verification_status = 'verified', rejection_reason = NULL WHERE id = $1",
+      [req.params.id]
+    );
+    res.json({ message: 'Student verified successfully' });
+  } catch (error) {
+    console.error('Verify student error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.put('/api/admin/reject/:id', authenticateToken, requireAdmin, async (req, res) => {
+  const { reason } = req.body;
+  try {
+    await pool.query(
+      "UPDATE students SET is_verified = false, verification_status = 'rejected', rejection_reason = $1 WHERE id = $2",
+      [reason || 'Data ditolak oleh admin. Silakan periksa kembali data Anda.', req.params.id]
+    );
+    res.json({ message: 'Student rejected successfully' });
+  } catch (error) {
+    console.error('Reject student error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
